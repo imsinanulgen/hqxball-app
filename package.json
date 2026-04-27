@@ -1,0 +1,53 @@
+{
+  "name": "haxscipt-client",
+  "version": "1.0.0",
+  "main": "main.js",
+  "private": true,
+  "author": {
+    "name": "HaxScipt"
+  },
+  "license": "GPL-3.0",
+  "homepage": "https://github.com/HaxScipt/haxscipt-client",
+  "email": "73192436+oghb@users.noreply.github.com",
+  "description": "HQXBall Client",
+  "shortVersion": "v1",
+  "shortVersionWindows": "v1",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.hqxball.client",
+    "productName": "HQXBall Client",
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    }
+  },
+  "dependencies": {
+    "discord-rpc": "^4.0.1",
+    "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "electron": "^41.3.0",
+    "electron-builder": "^26.8.1"
+  }
+}
