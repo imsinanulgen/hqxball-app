@@ -4,11 +4,11 @@
   "main": "main.js",
   "private": true,
   "author": {
-    "name": "HaxScipt"
+    "name": "HaxScipt",
+    "email": "73192436+oghb@users.noreply.github.com"
   },
   "license": "GPL-3.0",
   "homepage": "https://github.com/HaxScipt/haxscipt-client",
-  "email": "73192436+oghb@users.noreply.github.com",
   "description": "HQXBall Client",
   "shortVersion": "v1",
   "shortVersionWindows": "v1",
