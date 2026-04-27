@@ -1,54 +1,54 @@
 <div align="center">
   <img src="assets/icon.png" width="150" alt="HQXBALL Logo">
   <h1>HQXBALL Desktop Client</h1>
-  <p><b>Rekabetçi oyuncular için özel olarak tasarlanmış yüksek performanslı masaüstü istemcisi.</b></p>
+  <p><b>High-performance, ultra-low latency desktop client engineered specifically for competitive players.</b></p>
   <br>
 </div>
 
-## 🚀 Proje Hakkında
-**HQXBALL Desktop**, standart web tarayıcılarında (/X11/Wayland üzerinde) karşılaşılan kronik Canvas çökme ve "donma" (freeze) sorunlarını tamamen ortadan kaldırmak üzere tasarlanmıştır.
+## 🚀 About the Project
+**HQXBALL Desktop** is meticulously designed to completely eliminate chronic Canvas crashes, stalling, and "freeze" issues frequently encountered on standard web browsers (especially on modern Linux X11/Wayland and Windows environments).
 
-Özel kararlı (stable) **Electron 18.2.0** çekirdeği sayesinde, `FPS` limiti olmadan gecikmesiz (**0 Input Lag**) ve inanılmaz akıcı (4000+ FPS) maç deneyimi sunar. Sadece yeteneğinizin konuştuğu eşsiz bir e-spor arenasına giriş yapın.
+By utilizing a rock-solid, stable **Electron 18.2.0** core, it provides an uncapped, zero input lag, and incredibly smooth (4000+ FPS) gaming experience. Step into a unique esports arena where only your skill matters.
 
-## ✨ Öne Çıkan Özellikler
-* **Limitsiz Performans:** Modern Chromium sürümlerinde görülen VSYNC çökmesi onarılmış, donanım donmaları engellenmiştir.
-* **Apple-Style Hızlı Bağlantı:** Oyunun her anında `F2` tuşuna basarak, ekranda beliren okyanus pürüzsüzlüğündeki panelle dilediğiniz HQXBALL koduna yıldırım hızında bağlanın.
-* **Discord Entegrasyonu (RPC):** Oyunda olduğunuzu ve istatistiklerinizi Discord profilinizde havalı bir şekilde sergileyin (Kurulu değilse bile arka planda çökmeden çalışmaya devam eder).
-* **Gelişmiş Görüntüleme:** Gömülü `inject.js` ve özel Hqxball overlay eklentileriyle akıcı pip ekranı (DM Vision) ve tam kontrol.
-* **Açık Kaynak & Şeffaflık:** Her saniyesinde hilesiz ve güvenilir bir kod bloğundan güç alır.
+## ✨ Key Features
+* **Uncapped Performance:** Fixes modern Chromium VSYNC overrides, completely preventing hardware freezing at ultra-high refresh rates.
+* **Apple-Style Quick Connect:** Press `F2` at any time during gameplay to open a sleek, GPU-friendly panel and connect to any HQXBALL room code at lightning speed.
+* **Discord Integration (RPC):** Show off your current game status and statistics on your Discord profile in real-time. (If Discord is not installed, it safely bypasses without crashing).
+* **Advanced Overlays:** Built-in PiP screens (DM Vision) and full control mechanics via custom Hqxball overlay scripts.
+* **Open Source & Transparency:** Backed by clean, reliable, and cheat-free code every step of the way.
 
-## 📥 İndirme ve Kurulum
-Kurulum gerektiren veya gerektirmeyen hazır paketleri indirmek için [Releases](../../releases) sayfamızı ziyaret edin.
-Sistemleriniz için şu formatlar otomatik derlenmektedir:
+## 📥 Download & Installation
+To download ready-to-play packages without compiling, visit our [Releases](../../releases) page.
+The following formats are automatically built for your systems:
 - **Windows:** `.exe` / `.portable`
 - **MacOS:** `.dmg` / `.zip`
 - **Linux:** `.AppImage` / `.deb`
 
-## 🛠️ Geliştiriciler İçin Çalıştırma Kılavuzu
-Kendi sisteminizde derlemek veya uygulamaya katkıda bulunmak isterseniz:
+## 🛠️ Instructions for Developers
+If you'd like to build the project on your own machine or contribute:
 
-1. Depoyu bilgisayarınıza klonlayın:
+1. Clone the repository:
 ```bash
 git clone https://github.com/imsinanulgen/hqxball-app.git
 cd hqxball-app
 ```
 
-2. Bağımlılıkları yükleyin (Electron çekirdeği indirilecektir):
+2. Install dependencies (The specific Electron core will be downloaded):
 ```bash
 npm install
 ```
 
-3. Geliştirici modunda (-limitsiz- flags ile) başlatın:
+3. Run in development mode (with uncapped flags applied):
 ```bash
 npm start
 ```
 
-4. Paketi dışa aktarmak için:
+4. Build distributable packages:
 ```bash
 npm run dist
 ```
 
-## 🌐 Topluluk
-Bize katılıp destek verebilir veya arkadaşlarınızla eşleşebilirsiniz:
+## 🌐 Community
+Join us, support the project, or find players to match up with:
 - **Website:** [www.hqxball.com](https://www.hqxball.com)
 - **Discord:** [discord.gg/hqxball](https://discord.gg/hqxball)
