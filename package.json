@@ -10,8 +10,6 @@
   "license": "GPL-3.0",
   "homepage": "https://github.com/HaxScipt/haxscipt-client",
   "description": "HQXBall Client",
-  "shortVersion": "v1",
-  "shortVersionWindows": "v1",
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
