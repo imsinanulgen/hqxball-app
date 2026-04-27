@@ -1,5 +1,5 @@
 {
-  "name": "haxscipt-client",
+  "name": "hqxball",
   "version": "1.0.0",
   "main": "main.js",
   "private": true,
@@ -9,15 +9,15 @@
   },
   "license": "GPL-3.0",
   "homepage": "https://github.com/HaxScipt/haxscipt-client",
-  "description": "HQXBall Client",
+  "description": "HQXBALL",
   "scripts": {
-    "start": "electron .",
+    "start": "electron . --disable-frame-rate-limit --disable-gpu-vsync --no-vblank",
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
   "build": {
     "appId": "com.hqxball.client",
-    "productName": "HQXBall Client",
+    "productName": "HQXBALL",
     "directories": {
       "output": "dist"
     },
@@ -45,7 +45,7 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
-    "electron": "^41.3.0",
+    "electron": "18.2.0",
     "electron-builder": "^26.8.1"
   }
 }

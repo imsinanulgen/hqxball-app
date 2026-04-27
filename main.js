@@ -116,26 +116,37 @@ const createWindow = () => {
     autoHideMenuBar: true,
     kiosk: false,
     frame: true,
-    icon: path.join(__dirname, 'assets', 'icon.ico'),//bursa son
+    icon: path.join(__dirname, 'assets', 'icon.png'),//bursa son
     webPreferences: {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false
     },
-    title: "HaxScipt Client"
+    title: "HQXBALL"
   });
   
   // Keep custom window title and ignore page title changes
-  win.setTitle('HaxScipt Client');
+  win.setTitle('HQXBALL');
   win.on('page-title-updated', (event) => {
     event.preventDefault();
-    win.setTitle('HaxScipt Client');
+    win.setTitle('HQXBALL');
   });
   
-  const extensionPath = path.join(path.dirname(__dirname), 'app.asar.unpacked', 'inject', 'Haxball-Room-Extension');
-  win.webContents.session.loadExtension(extensionPath);
+  const extensionPath = app.isPackaged 
+    ? path.join(process.resourcesPath, 'app.asar.unpacked', 'inject', 'Haxball-Room-Extension')
+    : path.join(__dirname, 'inject', 'Haxball-Room-Extension');
+  
+  try {
+    win.webContents.session.loadExtension(extensionPath);
+  } catch (err) {
+    console.error("Extension load failed:", err);
+  }
 
   win.loadURL('https://www.hqxball.com/play');
+
+  win.once('ready-to-show', () => {
+    win.show();
+  });
 
   win.webContents.on('did-finish-load', () => {
     const injectJS = fs.readFileSync(path.join(__dirname, 'inject', 'inject.js'), 'utf8');
@@ -323,12 +334,12 @@ ipcMain.on('update-discord-rpc', (_event, details) => {
   const activity = {
     details: details,
     largeImageKey: 'client-logo',
-    largeImageText: 'HaxScipt Client v1',
+    largeImageText: 'HQXBALL',
     startTimestamp: Date.now(),
     buttons: [
       {
           label: 'Uygulamayı İndir',
-          url:'https://www.haxscipt.com'
+          url:'https://www.hqxball.com'
       },
       {
           label: 'Discord Sunucumuza Katıl',
@@ -355,7 +366,7 @@ app.whenReady().then(() => {
   const enableRPC = data["discord_rpc"] ?? true;
 
   if (enableRPC){
-    rpc.login({ clientId: rpcClientId });
+    rpc.login({ clientId: rpcClientId }).catch(err => console.error("Discord RPC Login failed, skipping..."));
   }
 });
 

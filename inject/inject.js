@@ -35,81 +35,141 @@ var K=async()=>{let o=await B("body > div > div.rightbar",!1);document.getElemen
             };
           }
 
-          function openJoinRoomPanel(){
+          function openJoinRoomPanel() {
+            // Ekranda halihazırda varsa kapat (Toggle mantığı)
+            const existing = document.getElementById('hxs-f2-panel');
+            if (existing) { existing.remove(); return; }
+
+            // Ana tam ekran karartıcı katman (GPU dostu, blur yok)
+            const overlay = document.createElement("div");
+            overlay.id = "hxs-f2-panel";
+            Object.assign(overlay.style, {
+              position: "fixed", top: "0", left: "0", width: "100%", height: "100%",
+              background: "rgba(0, 0, 0, 0.5)", zIndex: "99999",
+              display: "flex", justifyContent: "center", alignItems: "center",
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+              opacity: "0", transition: "opacity 0.2s ease"
+            });
+
+            // Boşluğa tıklayınca kapatma
+            overlay.addEventListener("mousedown", (e) => { if (e.target === overlay) closePanel(); });
+
+            // İç pencere (Apple Style)
+            const modal = document.createElement("div");
+            Object.assign(modal.style, {
+              background: "rgba(28, 28, 30, 0.98)", border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: "14px", padding: "24px", width: "380px",
+              boxShadow: "0 20px 40px rgba(0,0,0,0.4)", color: "#fff",
+              transform: "scale(0.95)", transition: "transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+              boxSizing: "border-box"
+            });
+
+            // Başlık
+            const title = document.createElement("h2");
+            title.textContent = "Join Room";
+            Object.assign(title.style, {
+              margin: "0 0 16px 0", fontSize: "20px", fontWeight: "600",
+              textAlign: "center", letterSpacing: "0.4px"
+            });
+
+            // Girdi kutusu
             const input = document.createElement("input");
             input.type = "text";
-            input.placeholder = "Oda bağlantısını veya 11 haneli kodu girin";
-            input.style.width = "calc(100% - 4px)";
-            input.style.padding = "10px";
-            input.style.fontSize = "15px";
-            input.style.border = "1px solid var(--hxs-panel-border, #444)";
-            input.style.borderRadius = "6px";
-            input.style.background = "var(--hxs-surface, #1b2125)";
-            input.style.color = "#fff";
-            input.style.outline = "none";
-            input.style.boxSizing = "border-box";
+            input.placeholder = "Paste the room link or 11-char code";
+            Object.assign(input.style, {
+              width: "100%", padding: "12px 14px", fontSize: "15px",
+              border: "1px solid rgba(255, 255, 255, 0.15)", borderRadius: "8px",
+              background: "rgba(255, 255, 255, 0.05)", color: "#fff", outline: "none",
+              boxSizing: "border-box", marginBottom: "16px",
+              transition: "border-color 0.2s, background 0.2s"
+            });
+            input.addEventListener("focus", () => {
+              input.style.borderColor = "#0a84ff";
+              input.style.background = "rgba(255, 255, 255, 0.08)";
+            });
+            input.addEventListener("blur", () => {
+              input.style.borderColor = "rgba(255, 255, 255, 0.15)";
+              input.style.background = "rgba(255, 255, 255, 0.05)";
+            });
 
+            // Buton
             const joinBtn = document.createElement("button");
-            joinBtn.textContent = "Bağlan";
-            joinBtn.className = "hxs-join";
-            joinBtn.style.padding = "10px 30px";
-            joinBtn.style.fontSize = "15px";
-            joinBtn.style.alignSelf = "center";
-            joinBtn.style.minWidth = "120px";
-            joinBtn.disabled = true; // başlangıçta kapalı
-            joinBtn.style.opacity = "0.6"; // gri görünüm
-            joinBtn.style.cursor = "not-allowed";
+            joinBtn.textContent = "Connect";
+            joinBtn.disabled = true;
+            Object.assign(joinBtn.style, {
+              width: "100%", padding: "12px", fontSize: "15px", fontWeight: "600",
+              border: "none", borderRadius: "8px", background: "#0a84ff", color: "#fff",
+              cursor: "not-allowed", opacity: "0.5", transition: "opacity 0.2s"
+            });
+            joinBtn.addEventListener("mousedown", () => { if (!joinBtn.disabled) joinBtn.style.transform = "scale(0.98)"; });
+            joinBtn.addEventListener("mouseup", () => { joinBtn.style.transform = "scale(1)"; });
+            joinBtn.addEventListener("mouseleave", () => { joinBtn.style.transform = "scale(1)"; });
 
-            // Geçerli mi kontrol
-            const validate = (val)=>{
-              const linkPattern = /^https:\/\/www\.(haxball|hqxball)\.com\/play\?c=.{11}$/;
-              const codePattern = /^[A-Za-z0-9_-]{11}$/;
+            // Doğrulama kuralı
+            const validate = (val) => {
+              const linkPattern = /^https:\/\/(www\.)?(haxball|hqxball)\.com\/play\?c=[A-Za-z0-9_-]+$/i;
+              const codePattern = /^[A-Za-z0-9_-]{4,20}$/;
               return linkPattern.test(val) || codePattern.test(val);
             };
 
-            const doJoin = ()=>{
+            const closePanel = () => {
+              overlay.style.opacity = "0"; modal.style.transform = "scale(0.95)";
+              setTimeout(() => overlay.remove(), 200);
+            };
+
+            const doJoin = () => {
+              if (joinBtn.disabled) return;
               const val = input.value.trim();
-              if (validate(val)){
-                // eğer sadece kod girdiyse linke dönüştür
-                const finalUrl = val.length === 11 ? `https://www.hqxball.com/play?c=${val}` : val;
+              if (validate(val)) {
+                const isCode = /^[A-Za-z0-9_-]{4,20}$/.test(val);
+                const finalUrl = isCode ? `https://www.hqxball.com/play?c=${val}` : val;
+                closePanel();
                 window.location.href = finalUrl;
               }
             };
 
             joinBtn.addEventListener("click", doJoin);
 
-            input.addEventListener("input", ()=>{
+            input.addEventListener("input", () => {
               const val = input.value.trim();
-              if(validate(val)){
-                joinBtn.disabled = false;
-                joinBtn.style.opacity = "1";
-                joinBtn.style.cursor = "pointer";
+              if (validate(val)) {
+                joinBtn.disabled = false; joinBtn.style.opacity = "1"; joinBtn.style.cursor = "pointer";
               } else {
-                joinBtn.disabled = true;
-                joinBtn.style.opacity = "0.6";
-                joinBtn.style.cursor = "not-allowed";
+                joinBtn.disabled = true; joinBtn.style.opacity = "0.5"; joinBtn.style.cursor = "not-allowed";
               }
             });
 
-            input.addEventListener("keydown", ev=>{
-              if(ev.key==="Enter" && !joinBtn.disabled){
-                ev.preventDefault(); doJoin();
-              }
+            input.addEventListener("keydown", ev => {
+              if (ev.key === "Enter") { ev.preventDefault(); doJoin(); }
+              if (ev.key === "Escape") { ev.preventDefault(); closePanel(); }
             });
 
-            const wrap = document.createElement("div");
-            wrap.style.display = "flex";
-            wrap.style.flexDirection = "column";
-            wrap.style.gap = "16px";
-            wrap.appendChild(input);
+            modal.appendChild(title);
+            modal.appendChild(input);
+            modal.appendChild(joinBtn);
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
 
-            b("Odaya Bağlan", wrap, [joinBtn]);
+            // Animasyonu başlatıp input'a odaklan
+            requestAnimationFrame(() => {
+              overlay.style.opacity = "1";
+              modal.style.transform = "scale(1)";
+              input.focus();
+            });
           }
 
+          // F2 Kısayolunu globale ekleme
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'F2' || e.code === 'F2') {
+              e.preventDefault();
+              openJoinRoomPanel();
+            }
+          });
 
 
 
-           // HaxScipt Odaları paneli — code match + 🆚 çiftiyle sağlam eşleştirme + refresh
+
+           // HQXBALL Odaları paneli — code match + 🆚 çiftiyle sağlam eşleştirme + refresh
             var xe = () => {
             // --- Odalar + kodlar ---
             const codeOf = url => (url.match(/[?&]c=([A-Za-z0-9_\-]+)/) || [])[1] || null;
@@ -293,7 +353,7 @@ var K=async()=>{let o=await B("body > div > div.rightbar",!1);document.getElemen
                 });
             }
 
-            b("HaxScipt Odaları", wrap, []);
+            b("HQXBALL Odaları", wrap, []);
 
             // açıkken 3sn'de bir (liste açıksa) otomatik yenile
             const T=setInterval(async()=>{
@@ -420,7 +480,7 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
         `;let c=t.querySelector("#custom-alert-message");typeof e=="string"?c.innerHTML=e.replace(/\n/g,"<br>"):(c.innerHTML="",c.appendChild(e)),document.body.appendChild(t);
         let d=t.querySelector("#custom-alert-buttons");i.forEach(a=>d.appendChild(a)),_.style.display="block",requestAnimationFrame(()=>{_.style.opacity="1"}),document.body.style.overflow="hidden",t.showModal(),requestAnimationFrame(()=>{t.style.opacity="1",t.style.transform="scale(1)"});
         let r=document.getElementById("custom-alert-close");r.onclick=()=>{H()},t.addEventListener("close",()=>{H()})},H=()=>{let o=document.getElementById("custom-alert"),e=document.getElementById("blur-overlay");o&&(e&&(e.style.opacity="0",setTimeout(()=>{e.style.display="none"},300)),o.style.opacity="0",o.style.transform="scale(0.8)",setTimeout(()=>{o.close(),o.remove(),document.body.style.overflow=""},300))};
-        var j={releases:"https://api.github.com/repos/HaxScipt/haxscipt-client/releases",website:"https://www.haxscipt.com",faq:"https://github.com/HaxScipt/haxscipt-client/blob/main/FAQ.md",github_issue:"https://github.com/HaxScipt/haxscipt-client/issues",discord:"https://www.discord.gg/haxscipt"},$="Bir komut girin (c tuşuna basarak gizleyin)";
+        var j={releases:"https://api.github.com/repos/HQXBALL/hqxball-client/releases",website:"https://www.hqxball.com",faq:"https://github.com/HQXBALL/hqxball-client/blob/main/FAQ.md",github_issue:"https://github.com/HQXBALL/hqxball-client/issues",discord:"https://www.discord.gg/hqxball"},$="Bir komut girin (c tuşuna basarak gizleyin)";
         var M=o=>{window.electronAPI.getAppPreferences().then(e=>{let i=e.profiles,_=i.find(n=>n.id===o)||i[0];localStorage.setItem("current_profile",_.id),Object.keys(_).filter(n=>!["id","name","autosave"].includes(n)).forEach(n=>{let t=_[n];t===null?localStorage.removeItem(n):(n==="geo_override"&&(t=JSON.stringify(t)),n==="fav_rooms"&&(t=t.length!==0?JSON.stringify(t):"[]"),localStorage.setItem(n,t))})}).catch(e=>{console.error("Failed to load settings:",e)})},U=o=>{console.log(`Switching to profile: ${o}`),M(o),sessionStorage.removeItem("profileInitialized"),window.electronAPI.restartApp()},q=()=>window.electronAPI.getAppPreferences().then(o=>{let e=o.profiles,i=localStorage.getItem("current_profile")||"default",_=e.findIndex(n=>n.id==i);if(_!==-1)return Object.keys(e[_]).filter(n=>!["id","name","autosave"].includes(n)).forEach(n=>{let t=localStorage.getItem(n);n=="geo_override"&&(t=JSON.parse(t)),n=="fav_rooms"&&(t=JSON.parse(t||"[]")),e[_][n]=t}),window.electronAPI.setAppPreference("profiles",e)}).catch(o=>{console.error("Failed to load settings:",o)}),se=o=>window.electronAPI.getAppPreferences().then(e=>{let i=e.profiles.filter(_=>!o.includes(_.id));return console.log("Removing profiles",o),window.electronAPI.setAppPreference("profiles",i)}).catch(e=>{console.error("Failed to load settings:",e)});
         function me(o){if(!document.getElementById("font-awesome-4")){let l=document.createElement("link");l.id="font-awesome-4",l.rel="stylesheet",l.href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",document.head.appendChild(l)}let e=localStorage.getItem("current_profile"),i=e,_=new Set,n=new Set,t="custom-modal-style";document.getElementById(t)?.remove(),document.getElementById("custom-modal")?.remove(),document.getElementById("blur-overlay")?.remove();
         let c=document.createElement("style");c.id=t,c.innerHTML=`
@@ -802,35 +862,15 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
             let f=document.createElement("div");f.style.display="flex",f.style.justifyContent="space-between",f.style.gap="10px";
             let L=A("Yedeklemeyi D\u0131\u015Fa Aktar","#244967","#3b5d82",()=>{window.electronAPI.exportPreferencesFile().then(E=>{E.success&&(L.textContent="D\u0131\u015Fa Aktar\u0131ld\u0131!",setTimeout(()=>L.textContent="Yedeklemeyi D\u0131\u015Fa Aktar",2e3))})}),C=A("Yedeklemeyi Geri Y\xFCkle","#244967","#3b5d82",()=>{window.electronAPI.importPreferencesFile().then(E=>{E.success?(b("Yedekleme geri y\xFCklendi","Uygulama birka\xE7 saniye i\xE7inde yeniden ba\u015Flayacakt\u0131r (veya manuel olarak ba\u015Flat\u0131n)..",[]),M("default"),setTimeout(()=>window.electronAPI.restartApp(),4e3)):(C.textContent="Ge\xE7ersiz yedekleme!",C.disabled=!0,C.style.backgroundColor="#D04D46",setTimeout(()=>{C.textContent="Yedeklemeyi Geri Y\xFCkle",C.style.backgroundColor="#244967",C.disabled=!1},2e3))})}),T=A("Uygulamay\u0131 S\u0131f\u0131rla","#b2413b","#D04D46",()=>{de()});f.appendChild(L),f.appendChild(C),f.appendChild(T),z.appendChild(S),z.appendChild(w),z.appendChild(f);
             let k=document.createElement("div");k.appendChild(e),k.appendChild(r),k.appendChild(m),k.appendChild(themeBlock),k.appendChild(O()),k.appendChild(z),b("Ayarlar",k,[])};
-            var ge=()=>{b("Hakkımızda",`Bu uygulama, <b>Hipnoz (dc: .lexa.)</b> tarafından HaxBall deneyimini geliştirip, orijinaline sadık kalacak şekilde geliştirilmiştir. (og client baz alınmıştır ve HaxScipt sunucusu adına düzenlenmiştir.)
+            var ge=()=>{b("Hakkımızda",`Bu uygulama, en hızlı ve optimize edilmiş <b>HQXBALL</b> deneyimini sunmak üzere tamamen düşük gecikme ve yüksek performans hedefiyle baştan aşağı geliştirilmiş resmi masaüstü istemcisidir.
 
-        Benzer projelerden farklı olarak, açık kaynaklıdır ve herhangi bir kayıt olmaksızın indirilebilir.
+        Orijinal ve şeffaf yapısıyla oyunculara hilesiz, donmayan ve akıcı bir rekabet ortamı sunar. Sadece yeteneğinizin konuştuğu eşsiz bir platform için optimize edilmiştir.
 
-        Bu uygulamayı yalnızca HaxScipt github ya da resmi web sitesinden indirdiğinizden emin olun:
-        <a target="_blank" href=https://www.haxscipt.com>https://www.haxscipt.com</a>
-        <a target="_blank" href=https://github.com/HaxScipt/haxscipt-client>https://github.com/HaxScipt/haxscipt-client</a>
-        
-
-        <b>Emeği Geçenler</b>
-        \u2022 Hipnoz - Developer / Proje Yöneticisi
-        \u2022 iam JV - Proje Yöneticisi
-        \u2022 Muzlera - Tasarım
-
-        <b>Resmi Discord sunucusuna katılın:</b>
-        <a target="_blank" href=https://www.discord.gg/haxscipt/>https://www.discord.gg/haxscipt</a>
-
-        
-        <b>© HaxScipt Global League</b>
-        \u2022 <a target="_blank" href=https://www.discord.gg/haxscipt>Discord</a>
-        \u2022 <a target="_blank" href=https://www.haxscipt.com>Website</a>
-        \u2022 <a target="_blank" href=https://www.youtube.com/@HaxScipt>YouTube</a>
-        \u2022 <a target="_blank" href=https://www.instagram.com/haxscipt>Instagram</a>
-        \u2022 <a target="_blank" href=https://www.tiktok.com/@haxsciptgl>TikTok</a>
-        \u2022 <a target="_blank" href=https://kick.com/haxscipt>Kick</a>
-        \u2022 <a target="_blank" href=https://www.twitch.tv/haxsciptgl>Twitch</a>
-        \u2022 <a target="_blank" href=https://soundcloud.com/haxscipt>SoundCloud</a>
-        `,[])},ce=()=>{let o=document.createElement("button");o.innerText="Website",o.onclick=()=>{window.open(j.website,"_blank")};
-        let e=document.createElement("button");e.innerText="Discord",e.onclick=()=>{window.open(j.discord,"_blank")},b("Yardım",`Resmi web sitesini veya Discord sunucumuzu ziyaret edin.
+        <b>HQXBALL İletişim & Topluluk</b>
+        \u2022 <a target="_blank" href=https://www.hqxball.com>Resmi Websitesi</a>
+        \u2022 <a target="_blank" href=https://discord.gg/hqxball>Discord Sunucumuz</a>
+        `,[])},ce=()=>{let o=document.createElement("button");o.innerText="Website",o.onclick=()=>{window.open("https://www.hqxball.com","_blank")};
+        let e=document.createElement("button");e.innerText="Discord",e.onclick=()=>{window.open("https://discord.gg/hqxball","_blank")},b("Yardım",`Resmi web sitesini veya Discord sunucumuzu ziyaret edin.
         `,[o,e])},Q=()=>{let o=document.getElementsByClassName("center-container")[0];if(!o)return;o.innerHTML="";
         let e=document.createElement("input");e.type="text",e.placeholder="Oda bağlantısını girin",e.classList.add("address-bar-input"),e.style.backgroundColor="black",e.style.color="white",e.style.border="1px solid #444",e.style.borderRadius="6px",e.style.padding="2px 6px",e.style.width="200px",e.style.maxWidth="100%",e.style.boxSizing="border-box",e.style.fontSize="16px",e.style.outline="none",e.style.transition="width 0.4s ease, border-color 0.3s ease, box-shadow 0.3s ease",e.style.textAlign="center",e.addEventListener("focus",()=>{e.style.width="100%",e.style.border="2px solid #b3413b",e.style.boxShadow="0 0 6px rgba(179, 65, 59, 0.3)"}),e.addEventListener("blur",()=>{e.value===""&&(e.style.width="200px"),e.style.border="1px solid #444",e.style.boxShadow="none"}),e.addEventListener("input",()=>{let _=e.value.trim(),n=/^https:\/\/www\.haxball\.com\/play\?c=.{11}$/.test(_);_===""||n?e.style.color="white":e.style.color="rgba(179, 65, 59, 0.8)"});
         let i=document.createElement("style");i.innerHTML=`
@@ -879,7 +919,7 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
             let t = document.createElement("span");
             t.classList.add("title");
             let c = document.createElement("a");
-            c.textContent = "HaxScipt Client v1";
+            c.textContent = "HQXBALL Client v1";
             c.href = "";
             c.classList.add("hxs-no-theme");
             c.addEventListener("click", function (ev) {
@@ -946,9 +986,9 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
             n.style.justifyContent = "flex-end";
             n.style.marginRight = "0";
 
-            // HaxScipt Odaları (profilin soluna)
+            // HQXBALL Odaları (profilin soluna)
             let hr = document.createElement("a");
-            hr.textContent = "HaxScipt Odaları";
+            hr.textContent = "HQXBALL Odaları";
             hr.href = "#";
             hr.style.marginRight = "15px";
             hr.addEventListener("click", function (u) {
@@ -1123,7 +1163,7 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
                 } else {
                   // ... (Default UI stilleriniz)
                   const saved = localStorage.getItem("hxs_theme");
-                  (window.hxsApplyTheme || applyTheme)?.(saved || "gray"); // Kayıt yoksa HaxScipt uygula
+                  (window.hxsApplyTheme || applyTheme)?.(saved || "gray"); // Kayıt yoksa HQXBALL uygula
                 }
                 let _=o.contentDocument.getElementsByClassName("container")[0];_.style.background="rgba(26, 33, 37, 0.1)",_.style.border="1px solid rgba(255, 255, 255, 0.25)",_.style.borderRadius="8px",_.style.boxShadow=`
             inset 0 0 2px rgba(255, 255, 255, 0.35),  /* stronger inner glow */
@@ -1183,13 +1223,13 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
         try{ if(!doc.__hxsInvisObs){ let busy=false; const obs=new MutationObserver(()=>{ try{ const open=(doc.body?.classList?.contains('showing-room-view')||!!doc.querySelector('.room-view')); const exists=!!doc.getElementById('invisui-btn'); if(open && !exists){ if(busy) return; busy=true; F().finally(()=>busy=false); } if(!open && exists){ doc.getElementById('invisui-btn')?.remove(); doc.getElementById('hxs-invisui-holder')?.remove(); } }catch(_){ } }); if(doc.body) obs.observe(doc.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']}); doc.__hxsInvisObs=obs; } }catch(_){ }
         },ae=async()=>{let o=document.getElementsByClassName("gameframe")[0];if(!o?.contentDocument){new Error("Gameframe or contentDocument not found");return}pe(o),we(o),await F(),await N()};
 
-        // === HaxScipt Tema Sistemi (buton + panel + anında uygulama) ===
+        // === HQXBALL Tema Sistemi (buton + panel + anında uygulama) ===
         (function hxsThemeSystem(){
         const STORAGE_KEY = "hxs_theme";
 
         // 1) Tema seti
         const THEMES = [
-            { id:"gray",  name:"HaxScipt (Varsayılan)",    primary:"#C8A104", hover:"#1C1C1E", accent:"#967903" },
+            { id:"gray",  name:"HQXBALL (Varsayılan)",    primary:"#C8A104", hover:"#1C1C1E", accent:"#967903" },
             { id:"blue",  name:"Mavi",   primary:"#2563eb", hover:"#1d4ed8", accent:"#38bdf8" },
             { id:"red",   name:"Kırmızı",primary:"#b2413b", hover:"#cc4c44", accent:"#f87171" },
             { id:"green", name:"Yeşil",  primary:"#22c55e", hover:"#16a34a", accent:"#86efac" },
@@ -1204,7 +1244,7 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
 
         // 2) Dış (ana pencere) stilini kur
         function applyRootStyle(theme){
-          // HaxScipt özel: renkleri doğrudan kullan, ton/satürasyon türetme
+          // HQXBALL özel: renkleri doğrudan kullan, ton/satürasyon türetme
           const isHaxscipt = theme?.id === "gray";
           const pal = isHaxscipt ? {
             primary: theme.primary,
@@ -1260,7 +1300,7 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
             .label-input{ background:var(--hxs-surface-2) !important; }
             .label-input input{ background:#1b2125 !important; color:#fff !important; }
 
-            /* HaxScipt Odaları kartları */
+            /* HQXBALL Odaları kartları */
             .hxs-room{ background:var(--hxs-surface) !important; border:1px solid var(--hxs-panel-border) !important; }
             .hxs-join{ background:var(--hxs-primary) !important; }
             .hxs-join:hover{ background:var(--hxs-primary-hover) !important; }
@@ -1417,7 +1457,7 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
             // iFrame hazırsa uygula; değilse birazdan deneriz
             try{ applyIframeStyle(th); }catch(_){}
         }
-        // Override: applyTheme with HaxScipt special handling (no saturation, clear-first)
+        // Override: applyTheme with HQXBALL special handling (no saturation, clear-first)
         function applyTheme(id){
             const th = getTheme(id);
             // If Glass UI is active, turn it off before applying theme to avoid conflicts
@@ -1743,11 +1783,11 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
 
             // 5 imgur + 1 klasik
             const OPTIONS = [
-              { url: "https://i.postimg.cc/Y90Y9xpr/Client1-FHD.png", label: "HaxScipt #1" },
-              { url: "https://i.postimg.cc/N0pRBnvC/Client2-FHD.png", label: "HaxScipt #2" },
-              { url: "https://i.postimg.cc/ydG9SSdF/Client3-FHD.png", label: "HaxScipt #3" },
-              { url: "https://i.postimg.cc/t4fbRdPM/Client4-2-K.png", label: "HaxScipt #4" },
-              { url: "https://i.postimg.cc/s1dhTd5x/Client5-FHD.png", label: "HaxScipt #5" },
+              { url: "https://i.postimg.cc/Y90Y9xpr/Client1-FHD.png", label: "HQXBALL #1" },
+              { url: "https://i.postimg.cc/N0pRBnvC/Client2-FHD.png", label: "HQXBALL #2" },
+              { url: "https://i.postimg.cc/ydG9SSdF/Client3-FHD.png", label: "HQXBALL #3" },
+              { url: "https://i.postimg.cc/t4fbRdPM/Client4-2-K.png", label: "HQXBALL #4" },
+              { url: "https://i.postimg.cc/s1dhTd5x/Client5-FHD.png", label: "HQXBALL #5" },
               { url: "classic", label: "Klasik HaxBall" },
             ];
 
@@ -1842,7 +1882,7 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
 
 
 
-        // 6) Header’a “Tema” linki ekle (Ayarlar/HaxScipt Odaları yanına)
+        // 6) Header’a “Tema” linki ekle (Ayarlar/HQXBALL Odaları yanına)
         function insertThemeLink(){
             const header = document.querySelector(".header .left-container");
             if(!header){ setTimeout(insertThemeLink, 300); return; }
@@ -2151,7 +2191,7 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
       height:35px; display:flex; align-items:center;
     }
 
-    /* "HaxScipt Client v1" ve profil pill'leri: dolu renk yerine ince çerçeve,
+    /* "HQXBALL Client v1" ve profil pill'leri: dolu renk yerine ince çerçeve,
        extra padding yok -> header boyu büyümez */
     .header .title a {
       background: transparent !important;
@@ -2210,7 +2250,7 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
       margin-left: 14px !important;
     }
 
-    /* “HaxScipt Client v1” ve profil pill’leri tek satır ve sabit yükseklik */
+    /* “HQXBALL Client v1” ve profil pill’leri tek satır ve sabit yükseklik */
     .header .title a{
       white-space: nowrap !important;
       height:22px !important;
@@ -2228,7 +2268,7 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
   if(!st){ st = document.createElement("style"); st.id="hxs-header-pillscale"; document.head.appendChild(st); }
 
   st.textContent = `
-    /* Sol taraftaki "HaxScipt Client v1" */
+    /* Sol taraftaki "HQXBALL Client v1" */
     .header .left-container .title a{
       height:40px !important;
       line-height:40px !important;
@@ -2352,7 +2392,7 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
   }
 })();
 
-// === Tema muaf anchor'lar (HaxScipt Client v1, profil, kalem) ===
+// === Tema muaf anchor'lar (HQXBALL Client v1, profil, kalem) ===
 (function hxsHeaderNoTheme(){
   let st = document.getElementById("hxs-header-no-theme");
   if(!st){ st = document.createElement("style"); st.id="hxs-header-no-theme"; document.head.appendChild(st); }
@@ -2561,8 +2601,8 @@ var b=(o,e,i=[])=>{if(!document.getElementById("custom-alert-style")){let a=docu
   `;
 })();
 
-// HaxScipt Odaları butonları için tema + klasik fallback
-// HaxScipt Odaları paneli: 2 sütun kart grid + tema/klasik renkler
+// HQXBALL Odaları butonları için tema + klasik fallback
+// HQXBALL Odaları paneli: 2 sütun kart grid + tema/klasik renkler
 (function hxsRoomsThemingFallback(){
   let st = document.getElementById("hxs-rooms-fallback");
   if(!st){ st = document.createElement("style"); st.id = "hxs-rooms-fallback"; document.head.appendChild(st); }
