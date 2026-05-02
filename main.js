@@ -1,4 +1,5 @@
 const { app, shell, BrowserWindow, ipcMain, dialog, screen } = require('electron');
+app.setName('HQXBALL');
 const path = require('path');
 const fs = require('fs');
 const { URL } = require('url');
@@ -8,7 +9,7 @@ const { generateKeyPairSync } = require('crypto');
 const DiscordRPC = require ("discord-rpc");
 
 let win;
-const rpcClientId = "1408696334722269186";
+const rpcClientId = "1499946037073285321";
 const rpc = new DiscordRPC.Client({ transport: 'ipc' });
 rpc.on('ready', () => {
 	console.log('Discord RPC ready');
@@ -22,7 +23,6 @@ const validatePreferences = (prefs) => {
     autosave: z.boolean(),
     avatar: z.string().nullable(),
     extrapolation: z.string().nullable(),
-    fav_rooms: z.array(z.string()),
     geo_override: z.object({
       lat: z.number(),
       lon: z.number(),
@@ -33,13 +33,11 @@ const validatePreferences = (prefs) => {
   });
 
   const PreferencesSchema = z.object({
-      fps_unlock: z.boolean(),
       notes: z.array(z.object({
         title: z.string(),
         body: z.string(),
         time: z.string()
-      })), 
-      transp_ui: z.boolean(),
+      })),
       shortcuts: z.array(z.tuple([z.string(), z.string()])),
       profiles: z.array(ProfileSchema),
       discord_rpc: z.boolean().optional()
@@ -66,7 +64,7 @@ const saveAppPreferences = (prefs) => {
 const loadAppPreferences = () => {
   const userDataPath = app.getPath('userData')
   const preferencesPath = path.join(userDataPath, 'preferences.json')
-  const preferencesDefaultPath = path.join(__dirname, 'inject', 'preferences_default.json')
+  const preferencesDefaultPath = path.join(__dirname, 'src', 'preferences_default.json')
   try {
     if (fs.existsSync(preferencesPath)) {
       const fileContent = fs.readFileSync(preferencesPath, 'utf-8');
@@ -88,14 +86,8 @@ const loadAppPreferences = () => {
   }
 }
 
-const preferences = loadAppPreferences();
-if (preferences.fps_unlock) {
-  app.commandLine.appendSwitch('disable-frame-rate-limit');
-  console.log("FPS unlocked")
-}
-// app.commandLine.appendSwitch('disable-accelerated-2d-canvas');
-// app.commandLine.appendSwitch('enable-gpu-rasterization');
-// app.commandLine.appendSwitch('force-gpu-rasterization');
+
+
 
 
 const createWindow = () => {
@@ -132,70 +124,19 @@ const createWindow = () => {
     win.setTitle('HQXBALL');
   });
   
-  const extensionPath = app.isPackaged 
-    ? path.join(process.resourcesPath, 'app.asar.unpacked', 'inject', 'Haxball-Room-Extension')
-    : path.join(__dirname, 'inject', 'Haxball-Room-Extension');
-  
-  try {
-    win.webContents.session.loadExtension(extensionPath);
-  } catch (err) {
-    console.error("Extension load failed:", err);
-  }
-
-  win.loadURL('https://www.hqxball.com/play');
+  win.loadURL('https://www.hqxball.com');
 
   win.once('ready-to-show', () => {
     win.show();
   });
 
   win.webContents.on('did-finish-load', () => {
-    const injectJS = fs.readFileSync(path.join(__dirname, 'inject', 'inject.js'), 'utf8');
-    // const injectCSS = fs.readFileSync(path.join(__dirname, 'inject', 'inject.css'), 'utf8');
-
-    // win.webContents.executeJavaScript(`
-    //   const style = document.createElement('style');
-    //   style.textContent = \`${injectCSS}\`;
-    //   document.head.appendChild(style);
-    // `);
-
-    win.webContents.executeJavaScript(injectJS);
+    const clientJS = fs.readFileSync(path.join(__dirname, 'src', 'game-bridge.js'), 'utf8');
+    win.webContents.executeJavaScript(clientJS);
   });
 
-  // unlimited FPS workaround for newer electron versions
-  // win.webContents.on('did-frame-finish-load', () => {
-  //   if (!win.webContents.debugger.isAttached()) {
-  //     try {
-  //       win.webContents.debugger.attach('1.3');
-  //     } catch (err) {
-  //       console.error('Debugger attach failed:', err);
-  //       return;
-  //     }
-  //   }
-
-  //   if (preferences.fps_unlock){
-  //     win.webContents.debugger.sendCommand('Emulation.setCPUThrottlingRate', {
-  //       rate: 9
-  //     }).then(() => {
-  //       console.log('Throttling enabled');
-  //     }).catch(err => {
-  //       console.error('Failed to set throttling rate:', err);
-  //     });
-  //   }
-  // })
 
 
-  // Handle in-app navigation (e.g., <a href="..."> clicks)
-  /*win.webContents.on('will-navigate', (event, url) => {
-    const parsedUrl = new URL(url);
-    // const isInternal = parsedUrl.hostname.endsWith('haxball.com');
-
-    const allowed = url.includes('haxball.com') || url.startsWith('https://github.com/oghb/haxball-client/releases/download');
-
-    if (!allowed) {
-      event.preventDefault();
-      shell.openExternal(url);
-    }
-  });*/
 
   // Handle window.open or target="_blank"
   win.webContents.setWindowOpenHandler(({ url }) => {
@@ -343,7 +284,7 @@ ipcMain.on('update-discord-rpc', (_event, details) => {
       },
       {
           label: 'Discord Sunucumuza Katıl',
-          url:'https://www.discord.gg/haxscipt'
+          url:'https://discord.gg/hqxball'
       }
     ]
   }
@@ -356,7 +297,7 @@ ipcMain.on('update-discord-rpc', (_event, details) => {
 app.whenReady().then(() => {
   // Ensure Windows taskbar/pinned icon uses our app icon
   // Must be set before creating the first BrowserWindow
-  app.setAppUserModelId('com.haxscipt.client');
+  app.setAppUserModelId('com.hqxball.client');
   win = createWindow();
 
   const preferencesPath = path.join(app.getPath('userData'), 'preferences.json')

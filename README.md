@@ -14,7 +14,7 @@ By utilizing a rock-solid, stable **Electron 18.2.0** core, it provides an uncap
 * **Uncapped Performance:** Fixes modern Chromium VSYNC overrides, completely preventing hardware freezing at ultra-high refresh rates.
 * **Apple-Style Quick Connect:** Press `F2` at any time during gameplay to open a sleek, GPU-friendly panel and connect to any HQXBALL room code at lightning speed.
 * **Discord Integration (RPC):** Show off your current game status and statistics on your Discord profile in real-time. (If Discord is not installed, it safely bypasses without crashing).
-* **Advanced Overlays:** Built-in PiP screens (DM Vision) and full control mechanics via custom Hqxball overlay scripts.
+* **Transparent & Secure:** Clean, auditable source code. No telemetry, no data collection, no third-party overlays. Everything runs locally.
 * **Open Source & Transparency:** Backed by clean, reliable, and cheat-free code every step of the way.
 
 ## 📥 Download & Installation

@@ -4,11 +4,11 @@
   "main": "main.js",
   "private": true,
   "author": {
-    "name": "HaxScipt",
-    "email": "73192436+oghb@users.noreply.github.com"
+    "name": "HQXBALL Team",
+    "url": "https://hqxball.com"
   },
   "license": "GPL-3.0",
-  "homepage": "https://github.com/HaxScipt/haxscipt-client",
+  "homepage": "https://github.com/imsinanulgen/hqxball-app",
   "description": "HQXBALL",
   "scripts": {
     "start": "electron . --disable-frame-rate-limit --disable-gpu-vsync --no-vblank",

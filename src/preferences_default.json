@@ -1,7 +1,5 @@
 {
-	"fps_unlock": false,
 	"notes": [],
-	"transp_ui": false,
 	"shortcuts": [
 	  ["/e", "/extrapolation "],
 	  ["/a", "/avatar "]
@@ -13,7 +11,6 @@
 		"autosave": true,
 		"avatar": null,
 		"extrapolation": null,
-		"fav_rooms": [],
 		"geo_override": null,
 		"player_auth_key": null,
 		"player_name": null
