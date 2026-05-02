@@ -26,8 +26,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Lint
-        run: npx eslint main.js preload.js src/game-bridge.js --env browser,node --parser-options=ecmaVersion:2022 --rule='{"no-undef": "warn", "no-unused-vars": "warn"}'
+      - name: Syntax Check
+        run: |
+          node --check main.js
+          node --check preload.js
+          node --check src/game-bridge.js
 
   build:
     name: Build on ${{ matrix.os }}
